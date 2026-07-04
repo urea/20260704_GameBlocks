@@ -16,6 +16,7 @@ export class AirplaneMotionController {
     pitchReturnLag = 0,
     maxBankRoll = 1.1868, // 68 deg
     bankRollLag = 0.21,
+    holdRollWhenNeutral = false,
     bankTurnRate = 0.42,
     pullTurnRate = 0,
     yawRate = 0.48,
@@ -36,6 +37,7 @@ export class AirplaneMotionController {
       pitchReturnLag,
       maxBankRoll,
       bankRollLag,
+      holdRollWhenNeutral,
       bankTurnRate,
       pullTurnRate,
       yawRate,
@@ -196,9 +198,11 @@ export class AirplaneMotionController {
     const controlEffectiveness = speed > this.cfg.minSpeed ? 1 : speed / this.cfg.minSpeed;
     const localPitch = upDown * this.cfg.pitchRate * deltaSeconds * controlEffectiveness;
     const maxBankRoll = Math.abs(this.cfg.maxBankRoll);
-    // the turn direction and roll-bank direction have opposite signs.
-    const targetRoll = -leftRight * maxBankRoll;
     const currentRoll = clamp(this.roll, -maxBankRoll, maxBankRoll);
+    // the turn direction and roll-bank direction have opposite signs.
+    const targetRoll = Math.abs(leftRight) > 1e-6 || !this.cfg.holdRollWhenNeutral
+      ? -leftRight * maxBankRoll
+      : currentRoll;
     let pitch = clamp(this.pitch + localPitch, this.cfg.minPitch, this.cfg.maxPitch);
     if (Math.abs(upDown) <= 1e-6 && this.cfg.pitchReturnLag > 0) {
       pitch = smoothToward(pitch, 0, this.cfg.pitchReturnLag, deltaSeconds);

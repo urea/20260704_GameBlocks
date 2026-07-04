@@ -13,11 +13,12 @@ The earlier prototypes proved that GameBlocks modules can be copied into a Vite 
 3. Use boost to shorten the course time.
 4. Finish the final gate and keep flying in free flight.
 
-## Controls
+## Controls: Expert Mode
 
 - `A / D` or left/right arrows roll the aircraft.
 - `W / S` or up/down arrows pitch the nose.
-- Bank and pull up to make the tightest turns.
+- Roll holds its bank angle when input is released.
+- Bank and pull up to turn; rolling alone does not auto-turn the aircraft.
 - `Q / E` apply light rudder yaw for fine correction.
 - `Shift` or `Space` triggers boost.
 
@@ -35,7 +36,7 @@ The earlier prototypes proved that GameBlocks modules can be copied into a Vite 
 
 ## Local Code
 
-Local code is limited to the ring-course objective, keyboard and touch input, path/ring visuals, mission panel, and browser verification hooks. The copied `AirplaneMotionController` is locally extended for the Sky Courier arcade-flight profile: roll input banks the aircraft, pull-up while banked increases turn rate, and Q/E apply rudder-style yaw.
+Local code is limited to the ring-course objective, keyboard and touch input, path/ring visuals, mission panel, and browser verification hooks. The copied `AirplaneMotionController` is locally extended for the Sky Courier expert arcade-flight profile: roll input sets and holds bank, pull-up while banked turns the aircraft, and Q/E apply rudder-style yaw.
 
 ## Verification
 

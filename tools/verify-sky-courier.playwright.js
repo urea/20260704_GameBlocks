@@ -41,22 +41,32 @@ async (page) => {
   await page.keyboard.down("KeyD");
   await page.waitForTimeout(450);
   const rollOnly = await page.evaluate(() => window.__skyCourierDebug.snapshot());
+  await page.keyboard.up("KeyD");
+  await page.waitForTimeout(300);
+  const heldBank = await page.evaluate(() => window.__skyCourierDebug.snapshot());
   await page.keyboard.down("KeyW");
   await page.keyboard.down("ShiftLeft");
   await page.waitForTimeout(700);
   await page.keyboard.up("ShiftLeft");
   await page.keyboard.up("KeyW");
-  await page.keyboard.up("KeyD");
   const moving = await page.evaluate(() => window.__skyCourierDebug.snapshot());
 
   if (Math.abs(rollOnly.rollDegrees) < 16) {
     throw new Error(`expected roll input to bank the aircraft: ${JSON.stringify({ before, rollOnly })}`);
   }
+  const rollOnlyHeadingDelta = Math.abs(((rollOnly.headingDegrees - before.headingDegrees + 540) % 360) - 180);
+  if (rollOnlyHeadingDelta > 2) {
+    throw new Error(`expected expert roll-only input not to auto-turn: ${JSON.stringify({ before, rollOnly, rollOnlyHeadingDelta })}`);
+  }
+  if (Math.abs(heldBank.rollDegrees) < Math.abs(rollOnly.rollDegrees) * 0.68) {
+    throw new Error(`expected released roll input to hold bank angle: ${JSON.stringify({ rollOnly, heldBank })}`);
+  }
   if (moving.speed <= before.speed) {
     throw new Error(`expected aircraft speed to increase, got before=${before.speed}, after=${moving.speed}`);
   }
-  if (moving.pitchDegrees < 20 || Math.abs(moving.rollDegrees) < 30) {
-    throw new Error(`expected bank-and-pull control response: ${JSON.stringify({ before, moving })}`);
+  const pullTurnHeadingDelta = Math.abs(((moving.headingDegrees - heldBank.headingDegrees + 540) % 360) - 180);
+  if (moving.pitchDegrees < 20 || Math.abs(moving.rollDegrees) < 30 || pullTurnHeadingDelta < 8) {
+    throw new Error(`expected bank-and-pull control response: ${JSON.stringify({ before, heldBank, moving, pullTurnHeadingDelta })}`);
   }
 
   const headingAfterPull = moving.headingDegrees;
@@ -74,5 +84,5 @@ async (page) => {
   }
 
   await page.screenshot({ path: "output/playwright/sky-courier-complete.png", fullPage: false });
-  return { canvasStats, before, rollOnly, moving, rudder, completed };
+  return { canvasStats, before, rollOnly, heldBank, moving, pullTurnHeadingDelta, rudder, completed };
 }
