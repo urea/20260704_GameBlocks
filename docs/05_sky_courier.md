@@ -15,9 +15,10 @@ The earlier prototypes proved that GameBlocks modules can be copied into a Vite 
 
 ## Controls: Expert Mode
 
-- `A / D` or left/right arrows roll the aircraft.
-- `W / S` or up/down arrows pitch the nose.
-- Roll holds its bank angle when input is released.
+- `A / D` or left/right arrows roll the aircraft continuously while held.
+- `S` or down arrow pulls the stick back and pitches the nose up.
+- `W` or up arrow pushes the stick forward and pitches the nose down.
+- Release roll input to keep the current roll angle; use opposite roll to level.
 - Bank and pull up to turn; rolling alone does not auto-turn the aircraft.
 - `Q / E` apply light rudder yaw for fine correction.
 - `Shift` or `Space` triggers boost.
@@ -36,7 +37,7 @@ The earlier prototypes proved that GameBlocks modules can be copied into a Vite 
 
 ## Local Code
 
-Local code is limited to the ring-course objective, keyboard and touch input, path/ring visuals, mission panel, and browser verification hooks. The copied `AirplaneMotionController` is locally extended for the Sky Courier expert arcade-flight profile: roll input sets and holds bank, pull-up while banked turns the aircraft, and Q/E apply rudder-style yaw.
+Local code is limited to the ring-course objective, keyboard and touch input, path/ring visuals, mission panel, and browser verification hooks. The copied `AirplaneMotionController` is locally extended for the Sky Courier expert arcade-flight profile: roll input controls roll rate, pull-back pitch while banked turns the aircraft, and Q/E apply rudder-style yaw.
 
 ## Verification
 

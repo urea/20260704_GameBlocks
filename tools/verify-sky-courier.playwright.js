@@ -37,36 +37,47 @@ async (page) => {
     throw new Error(`canvas looks blank: ${JSON.stringify(canvasStats)}`);
   }
 
+  const headingDelta = (a, b) => Math.abs(((a - b + 540) % 360) - 180);
+
   const before = await page.evaluate(() => window.__skyCourierDebug.snapshot());
   await page.keyboard.down("KeyD");
   await page.waitForTimeout(450);
-  const rollOnly = await page.evaluate(() => window.__skyCourierDebug.snapshot());
+  const rollFirst = await page.evaluate(() => window.__skyCourierDebug.snapshot());
+  await page.waitForTimeout(450);
+  const rollSecond = await page.evaluate(() => window.__skyCourierDebug.snapshot());
   await page.keyboard.up("KeyD");
+  await page.waitForTimeout(80);
+  const releaseStart = await page.evaluate(() => window.__skyCourierDebug.snapshot());
   await page.waitForTimeout(300);
-  const heldBank = await page.evaluate(() => window.__skyCourierDebug.snapshot());
-  await page.keyboard.down("KeyW");
+  const releasedRoll = await page.evaluate(() => window.__skyCourierDebug.snapshot());
+  await page.keyboard.down("KeyS");
   await page.keyboard.down("ShiftLeft");
   await page.waitForTimeout(700);
   await page.keyboard.up("ShiftLeft");
-  await page.keyboard.up("KeyW");
+  await page.keyboard.up("KeyS");
   const moving = await page.evaluate(() => window.__skyCourierDebug.snapshot());
 
-  if (Math.abs(rollOnly.rollDegrees) < 16) {
-    throw new Error(`expected roll input to bank the aircraft: ${JSON.stringify({ before, rollOnly })}`);
+  const firstRollDelta = Math.abs(rollFirst.rollDegrees - before.rollDegrees);
+  const continuedRollDelta = Math.abs(rollSecond.rollDegrees - rollFirst.rollDegrees);
+  if (firstRollDelta < 16) {
+    throw new Error(`expected D input to roll the aircraft: ${JSON.stringify({ before, rollFirst, firstRollDelta })}`);
   }
-  const rollOnlyHeadingDelta = Math.abs(((rollOnly.headingDegrees - before.headingDegrees + 540) % 360) - 180);
+  if (continuedRollDelta < 16) {
+    throw new Error(`expected held D input to keep rolling: ${JSON.stringify({ rollFirst, rollSecond, continuedRollDelta })}`);
+  }
+  const rollOnlyHeadingDelta = headingDelta(rollSecond.headingDegrees, before.headingDegrees);
   if (rollOnlyHeadingDelta > 2) {
-    throw new Error(`expected expert roll-only input not to auto-turn: ${JSON.stringify({ before, rollOnly, rollOnlyHeadingDelta })}`);
+    throw new Error(`expected expert roll-only input not to auto-turn: ${JSON.stringify({ before, rollSecond, rollOnlyHeadingDelta })}`);
   }
-  if (Math.abs(heldBank.rollDegrees) < Math.abs(rollOnly.rollDegrees) * 0.68) {
-    throw new Error(`expected released roll input to hold bank angle: ${JSON.stringify({ rollOnly, heldBank })}`);
+  if (Math.abs(releasedRoll.rollDegrees - releaseStart.rollDegrees) > 4) {
+    throw new Error(`expected released roll input to preserve current roll angle: ${JSON.stringify({ releaseStart, releasedRoll })}`);
   }
   if (moving.speed <= before.speed) {
     throw new Error(`expected aircraft speed to increase, got before=${before.speed}, after=${moving.speed}`);
   }
-  const pullTurnHeadingDelta = Math.abs(((moving.headingDegrees - heldBank.headingDegrees + 540) % 360) - 180);
-  if (moving.pitchDegrees < 20 || Math.abs(moving.rollDegrees) < 30 || pullTurnHeadingDelta < 8) {
-    throw new Error(`expected bank-and-pull control response: ${JSON.stringify({ before, heldBank, moving, pullTurnHeadingDelta })}`);
+  const pullTurnHeadingDelta = headingDelta(moving.headingDegrees, releasedRoll.headingDegrees);
+  if (moving.pitchDegrees < 20 || moving.altitude <= releasedRoll.altitude + 20 || Math.abs(moving.rollDegrees) < 30 || pullTurnHeadingDelta < 8) {
+    throw new Error(`expected S/back-stick bank-and-pull control response: ${JSON.stringify({ before, releasedRoll, moving, pullTurnHeadingDelta })}`);
   }
 
   const headingAfterPull = moving.headingDegrees;
@@ -74,7 +85,7 @@ async (page) => {
   await page.waitForTimeout(500);
   await page.keyboard.up("KeyQ");
   const rudder = await page.evaluate(() => window.__skyCourierDebug.snapshot());
-  if (Math.abs(rudder.headingDegrees - headingAfterPull) < 2) {
+  if (headingDelta(rudder.headingDegrees, headingAfterPull) < 2) {
     throw new Error(`expected Q/E rudder yaw to adjust heading: ${JSON.stringify({ moving, rudder })}`);
   }
 
@@ -84,5 +95,5 @@ async (page) => {
   }
 
   await page.screenshot({ path: "output/playwright/sky-courier-complete.png", fullPage: false });
-  return { canvasStats, before, rollOnly, heldBank, moving, pullTurnHeadingDelta, rudder, completed };
+  return { canvasStats, before, rollFirst, rollSecond, releaseStart, releasedRoll, moving, pullTurnHeadingDelta, rudder, completed };
 }

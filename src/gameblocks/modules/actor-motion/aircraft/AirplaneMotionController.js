@@ -17,6 +17,8 @@ export class AirplaneMotionController {
     maxBankRoll = 1.1868, // 68 deg
     bankRollLag = 0.21,
     holdRollWhenNeutral = false,
+    continuousRoll = false,
+    rollRate = 2.6,
     bankTurnRate = 0.42,
     pullTurnRate = 0,
     yawRate = 0.48,
@@ -38,6 +40,8 @@ export class AirplaneMotionController {
       maxBankRoll,
       bankRollLag,
       holdRollWhenNeutral,
+      continuousRoll,
+      rollRate,
       bankTurnRate,
       pullTurnRate,
       yawRate,
@@ -198,20 +202,29 @@ export class AirplaneMotionController {
     const controlEffectiveness = speed > this.cfg.minSpeed ? 1 : speed / this.cfg.minSpeed;
     const localPitch = upDown * this.cfg.pitchRate * deltaSeconds * controlEffectiveness;
     const maxBankRoll = Math.abs(this.cfg.maxBankRoll);
-    const currentRoll = clamp(this.roll, -maxBankRoll, maxBankRoll);
-    // the turn direction and roll-bank direction have opposite signs.
-    const targetRoll = Math.abs(leftRight) > 1e-6 || !this.cfg.holdRollWhenNeutral
-      ? -leftRight * maxBankRoll
-      : currentRoll;
     let pitch = clamp(this.pitch + localPitch, this.cfg.minPitch, this.cfg.maxPitch);
     if (Math.abs(upDown) <= 1e-6 && this.cfg.pitchReturnLag > 0) {
       pitch = smoothToward(pitch, 0, this.cfg.pitchReturnLag, deltaSeconds);
     }
-    const roll = smoothToward(currentRoll, targetRoll, this.cfg.bankRollLag, deltaSeconds);
 
+    let roll;
+    if (this.cfg.continuousRoll) {
+      // Expert aircraft input: left/right controls roll rate, not target bank angle.
+      roll = this.roll - leftRight * this.cfg.rollRate * deltaSeconds * controlEffectiveness;
+    } else {
+      const currentRoll = clamp(this.roll, -maxBankRoll, maxBankRoll);
+      // The turn direction and roll-bank direction have opposite signs.
+      const targetRoll = Math.abs(leftRight) > 1e-6 || !this.cfg.holdRollWhenNeutral
+        ? -leftRight * maxBankRoll
+        : currentRoll;
+      roll = smoothToward(currentRoll, targetRoll, this.cfg.bankRollLag, deltaSeconds);
+    }
+
+    const normalizedRoll = Math.atan2(Math.sin(roll), Math.cos(roll));
     const bankTurnReference = Math.max(1e-6, Math.abs(this.cfg.bankTurnRollReference));
-    // Convert the roll-bank direction back to turn direction.
-    const bankTurnAxis = clamp(-roll / bankTurnReference, -1, 1);
+    const bankTurnReferenceSin = Math.max(1e-6, Math.sin(bankTurnReference));
+    // Convert the roll-bank direction back to turn direction, even after full rolls.
+    const bankTurnAxis = clamp(-Math.sin(normalizedRoll) / bankTurnReferenceSin, -1, 1);
     const passiveBankTurnYaw = bankTurnAxis * this.cfg.bankTurnRate * deltaSeconds * controlEffectiveness;
     const pullTurnYaw = bankTurnAxis
       * Math.max(0, upDown)
