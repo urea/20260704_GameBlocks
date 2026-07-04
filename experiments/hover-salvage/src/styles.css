@@ -1,0 +1,107 @@
+:root {
+  color: #f8fdff;
+  background: #0d1720;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+#scene-root {
+  position: fixed;
+  inset: 0;
+  background: #78b9d8;
+}
+
+#scene-root canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hud {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 4;
+  min-width: 188px;
+  padding: 10px 12px;
+  border: 1px solid rgba(132, 236, 255, 0.32);
+  border-radius: 8px;
+  background: rgba(4, 13, 20, 0.72);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(10px);
+}
+
+.hud span,
+.hud strong,
+.hud small {
+  display: block;
+}
+
+.hud span {
+  color: rgba(132, 236, 255, 0.76);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hud strong {
+  margin-top: 4px;
+  font-size: 1.34rem;
+}
+
+.hud small {
+  color: rgba(224, 249, 255, 0.78);
+}
+
+#radar {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 4;
+  width: 178px;
+  height: 150px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.25);
+}
+
+#reset-button {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 4;
+  min-width: 74px;
+  height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  color: #f8fdff;
+  background: rgba(4, 13, 20, 0.64);
+  cursor: pointer;
+}
+
+#reset-button:hover,
+#reset-button:focus-visible {
+  border-color: rgba(132, 236, 255, 0.85);
+  outline: none;
+}
+
+@media (max-width: 700px) {
+  #radar {
+    width: 132px;
+    height: 116px;
+  }
+}

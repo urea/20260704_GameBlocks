@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Turret Range - GameBlocks Combat</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="scene-root" aria-label="Turret Range 3D scene"></div>
+      <div class="crosshair" aria-hidden="true"></div>
+      <div class="hud" aria-live="polite">
+        <span>Turret Range</span>
+        <strong id="target-readout">5 targets</strong>
+        <small id="weapon-readout">Gun ready</small>
+      </div>
+      <button id="reset-button" type="button">Reset</button>
+    </div>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,120 @@
+:root {
+  color: #fff8f3;
+  background: #151414;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+#scene-root {
+  position: fixed;
+  inset: 0;
+  background: #262322;
+}
+
+#scene-root canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hud {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 4;
+  min-width: 176px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 175, 104, 0.34);
+  border-radius: 8px;
+  background: rgba(16, 11, 8, 0.74);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(10px);
+}
+
+.hud span,
+.hud strong,
+.hud small {
+  display: block;
+}
+
+.hud span {
+  color: rgba(255, 196, 138, 0.78);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hud strong {
+  margin-top: 4px;
+  font-size: 1.32rem;
+}
+
+.hud small {
+  color: rgba(255, 242, 228, 0.78);
+}
+
+.crosshair {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 4;
+  width: 34px;
+  height: 34px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.crosshair::before,
+.crosshair::after {
+  position: absolute;
+  content: "";
+  background: rgba(255, 230, 168, 0.85);
+}
+
+.crosshair::before {
+  left: 15px;
+  top: 0;
+  width: 4px;
+  height: 34px;
+}
+
+.crosshair::after {
+  left: 0;
+  top: 15px;
+  width: 34px;
+  height: 4px;
+}
+
+#reset-button {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 4;
+  min-width: 74px;
+  height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  color: #fff8f3;
+  background: rgba(16, 11, 8, 0.64);
+  cursor: pointer;
+}
+
+#reset-button:hover,
+#reset-button:focus-visible {
+  border-color: rgba(255, 175, 104, 0.85);
+  outline: none;
+}

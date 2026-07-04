@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hover Salvage - GameBlocks Vehicle</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="scene-root" aria-label="Hover Salvage 3D scene"></div>
+      <div class="hud" aria-live="polite">
+        <span>Hover Salvage</span>
+        <strong id="cargo-readout">0 / 7</strong>
+        <small id="status-readout">Sweep the island</small>
+      </div>
+      <div id="radar" aria-label="Pickup radar"></div>
+      <button id="reset-button" type="button">Reset</button>
+    </div>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

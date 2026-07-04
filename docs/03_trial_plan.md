@@ -41,3 +41,5 @@ Start with a board/block prototype because it best matches the `GameBlocks` proj
 - Run a Rapier3D marble simulation.
 - Solve four short stages with deterministic blueprint solutions.
 - Use `BoardEnvironment` and `WorldBasis` for board/world alignment.
+
+The eight-game target is tracked in `docs/07_mini_game_set.md`.

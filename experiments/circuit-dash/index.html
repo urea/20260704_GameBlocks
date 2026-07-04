@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Circuit Dash - GameBlocks Race</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="scene-root" aria-label="Circuit Dash 3D scene"></div>
+      <div class="hud" aria-live="polite">
+        <span>Circuit Dash</span>
+        <strong id="lap-readout">CP 1/6</strong>
+        <small id="speed-readout">0 km/h</small>
+      </div>
+      <canvas id="minimap" aria-label="Race minimap"></canvas>
+      <button id="reset-button" type="button">Reset</button>
+    </div>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

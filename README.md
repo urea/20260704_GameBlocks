@@ -39,6 +39,10 @@ powershell -ExecutionPolicy Bypass -File .\tools\ValidateProject.ps1
 - `experiments/fantasy-advance/` - fantasy base-advance card game with hidden 3x3 defense, batting order, outs, bases, and scoring.
 - `experiments/block-relay/` - route-building 3D puzzle.
 - `experiments/contraption-lab/` - 3D contraption physics puzzle with fans, ramps, walls, bumpers, and four stages.
+- `experiments/snake-garden/` - 3D snake board using GameBlocks snake motion and snake play rules.
+- `experiments/circuit-dash/` - arcade checkpoint race using GameBlocks car motion, race track, car visuals, race state, and minimap.
+- `experiments/hover-salvage/` - six-axis hover pickup run using GameBlocks general vehicle motion, pickup objects, and radar.
+- `experiments/turret-range/` - combat shooting range using GameBlocks aim, weapon, projectile, combat, arena, and health bar modules.
 
 When published with GitHub Pages:
 
@@ -47,3 +51,7 @@ When published with GitHub Pages:
 - `https://urea.github.io/20260704_GameBlocks/experiments/fantasy-advance/`
 - `https://urea.github.io/20260704_GameBlocks/experiments/contraption-lab/`
 - `https://urea.github.io/20260704_GameBlocks/experiments/block-relay/`
+- `https://urea.github.io/20260704_GameBlocks/experiments/snake-garden/`
+- `https://urea.github.io/20260704_GameBlocks/experiments/circuit-dash/`
+- `https://urea.github.io/20260704_GameBlocks/experiments/hover-salvage/`
+- `https://urea.github.io/20260704_GameBlocks/experiments/turret-range/`
