@@ -21,6 +21,7 @@ export class AirplaneModelController {
     yaw,
     pitch,
     roll,
+    bodyFrame = null,
     throttle,
     isBoosting,
     elapsedTimeSeconds,
@@ -30,7 +31,7 @@ export class AirplaneModelController {
 
     this.planeModel.position.set(position.x, position.y, position.z);
 
-    const frame = this.basis.yawPitchRollFrame(yaw, pitch, roll);
+    const frame = bodyFrame ?? this.basis.yawPitchRollFrame(yaw, pitch, roll);
     this.modelMatrix.makeBasis(frame.right, frame.up, frame.back ?? frame.forward.clone().negate());
     this.planeModel.quaternion.setFromRotationMatrix(this.modelMatrix);
 

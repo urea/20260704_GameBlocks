@@ -127,7 +127,8 @@ export class AirplaneMotionController {
       this.position,
       nextSpeed * deltaSeconds,
       nextAttitude.yaw,
-      nextAttitude.pitch
+      nextAttitude.pitch,
+      nextAttitude.frame
     );
 
     const intent = {
@@ -139,6 +140,7 @@ export class AirplaneMotionController {
       pitch: nextAttitude.pitch,
       roll: nextAttitude.roll,
       yaw: nextAttitude.yaw,
+      frame: nextAttitude.frame,
     };
 
     if (commit) return this.commitMovement(intent);
@@ -153,7 +155,7 @@ export class AirplaneMotionController {
     this.roll = intent.roll;
     this.yaw = intent.yaw;
 
-    const frame = this.basis.yawPitchRollFrame(this.yaw, this.pitch, this.roll);
+    const frame = intent.frame ?? this.basis.yawPitchRollFrame(this.yaw, this.pitch, this.roll);
     return {
       position: this.position.clone(),
       yaw: this.yaw,
@@ -200,6 +202,10 @@ export class AirplaneMotionController {
 
   predictAttitude(leftRight, upDown, yawInput, speed, deltaSeconds) {
     const controlEffectiveness = speed > this.cfg.minSpeed ? 1 : speed / this.cfg.minSpeed;
+    if (this.cfg.continuousRoll) {
+      return this.predictLocalAttitude(leftRight, upDown, yawInput, controlEffectiveness, deltaSeconds);
+    }
+
     const localPitch = upDown * this.cfg.pitchRate * deltaSeconds * controlEffectiveness;
     const maxBankRoll = Math.abs(this.cfg.maxBankRoll);
     let pitch = clamp(this.pitch + localPitch, this.cfg.minPitch, this.cfg.maxPitch);
@@ -234,17 +240,98 @@ export class AirplaneMotionController {
     const rudderYaw = yawInput * this.cfg.yawRate * deltaSeconds * controlEffectiveness;
     const yaw = this.yaw + passiveBankTurnYaw + pullTurnYaw + rudderYaw;
 
-    return { pitch, roll, yaw };
+    return {
+      pitch,
+      roll,
+      yaw,
+      frame: this.basis.yawPitchRollFrame(yaw, pitch, roll),
+    };
+  }
+
+  predictLocalAttitude(leftRight, upDown, yawInput, controlEffectiveness, deltaSeconds) {
+    let frame = this.basis.yawPitchRollFrame(this.yaw, this.pitch, this.roll);
+    frame = {
+      forward: frame.forward.clone(),
+      right: frame.right.clone(),
+      up: frame.up.clone(),
+    };
+
+    const rollDelta = -leftRight * this.cfg.rollRate * deltaSeconds * controlEffectiveness;
+    if (Math.abs(rollDelta) > 1e-8) {
+      frame.right.applyAxisAngle(frame.forward, rollDelta);
+      frame.up.applyAxisAngle(frame.forward, rollDelta);
+      frame = this.orthonormalizeFrame(frame);
+    }
+
+    const pitchDelta = upDown * this.cfg.pitchRate * deltaSeconds * controlEffectiveness;
+    if (Math.abs(pitchDelta) > 1e-8) {
+      frame.forward.applyAxisAngle(frame.right, pitchDelta);
+      frame.up.applyAxisAngle(frame.right, pitchDelta);
+      frame = this.orthonormalizeFrame(frame);
+    } else if (this.cfg.pitchReturnLag > 0) {
+      const levelPitch = smoothToward(this.pitch, 0, this.cfg.pitchReturnLag, deltaSeconds);
+      const attitude = this.frameToYawPitchRoll(frame);
+      frame = this.basis.yawPitchRollFrame(attitude.yaw, levelPitch, attitude.roll);
+    }
+
+    const rudderDelta = yawInput * this.cfg.yawRate * deltaSeconds * controlEffectiveness;
+    if (Math.abs(rudderDelta) > 1e-8) {
+      frame.forward.applyAxisAngle(frame.up, rudderDelta);
+      frame.right.applyAxisAngle(frame.up, rudderDelta);
+      frame = this.orthonormalizeFrame(frame);
+    }
+
+    let attitude = this.frameToYawPitchRoll(frame);
+    const clampedPitch = clamp(attitude.pitch, this.cfg.minPitch, this.cfg.maxPitch);
+    if (Math.abs(clampedPitch - attitude.pitch) > 1e-8) {
+      frame = this.basis.yawPitchRollFrame(attitude.yaw, clampedPitch, attitude.roll);
+      attitude = this.frameToYawPitchRoll(frame);
+    }
+
+    return {
+      ...attitude,
+      frame,
+    };
+  }
+
+  orthonormalizeFrame(frame) {
+    const forward = frame.forward.clone().normalize();
+    let right = frame.right.clone().sub(forward.clone().multiplyScalar(frame.right.dot(forward)));
+    if (right.lengthSq() <= 1e-8) {
+      right = this.basis.yawPitchRollFrame(this.yaw, this.pitch, this.roll).right.clone();
+    }
+    right.normalize();
+    const up = new Vector3().crossVectors(right, forward).normalize();
+    return {
+      forward,
+      right,
+      up,
+      back: forward.clone().multiplyScalar(-1),
+    };
+  }
+
+  frameToYawPitchRoll(frame) {
+    const normalized = this.orthonormalizeFrame(frame);
+    const forward = normalized.forward;
+    const yaw = this.basis.forwardToYaw(forward);
+    const pitch = Math.asin(clamp(this.basis.upComponent(forward), -1, 1));
+    const unrolled = this.basis.yawPitchRollFrame(yaw, pitch, 0);
+    const roll = Math.atan2(
+      unrolled.right.clone().cross(normalized.right).dot(forward),
+      unrolled.right.dot(normalized.right)
+    );
+    return { yaw, pitch, roll };
   }
 
   predictPosition(
     position = this.position,
     distance = 0,
     yaw = this.yaw,
-    pitch = this.pitch
+    pitch = this.pitch,
+    frame = null
   ) {
     const startPosition = toVec3(position, this.position);
-    const forward = this.basis.yawPitchRollFrame(yaw, pitch).forward;
+    const forward = frame?.forward ?? this.basis.yawPitchRollFrame(yaw, pitch).forward;
     return startPosition.addScaledVector(forward, distance);
   }
 

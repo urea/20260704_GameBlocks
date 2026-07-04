@@ -319,6 +319,7 @@ export function createSkyCourierView({
         yaw: snapshot.yaw,
         pitch: snapshot.pitch,
         roll: snapshot.roll,
+        bodyFrame: snapshot.frame,
         throttle: snapshot.throttle,
         isBoosting: snapshot.isBoosting,
         elapsedTimeSeconds,

@@ -37,13 +37,25 @@ async (page) => {
     throw new Error(`canvas looks blank: ${JSON.stringify(canvasStats)}`);
   }
 
-  const headingDelta = (a, b) => Math.abs(((a - b + 540) % 360) - 180);
+  const signedAngleDelta = (a, b) => ((a - b + 540) % 360) - 180;
+  const angleDelta = (a, b) => Math.abs(signedAngleDelta(a, b));
 
   const before = await page.evaluate(() => window.__skyCourierDebug.snapshot());
+  await page.keyboard.down("KeyS");
+  await page.waitForTimeout(450);
+  await page.keyboard.up("KeyS");
+  const uprightPull = await page.evaluate(() => window.__skyCourierDebug.snapshot());
+  if (uprightPull.pitchDegrees < before.pitchDegrees + 24 || uprightPull.altitude <= before.altitude + 12) {
+    throw new Error(`expected S/back-stick input to pitch up when upright: ${JSON.stringify({ before, uprightPull })}`);
+  }
+
+  await page.evaluate(() => window.__skyCourierDebug.reset());
+  await page.waitForTimeout(200);
+  const resetBeforeRoll = await page.evaluate(() => window.__skyCourierDebug.snapshot());
   await page.keyboard.down("KeyD");
-  await page.waitForTimeout(450);
+  await page.waitForTimeout(300);
   const rollFirst = await page.evaluate(() => window.__skyCourierDebug.snapshot());
-  await page.waitForTimeout(450);
+  await page.waitForTimeout(300);
   const rollSecond = await page.evaluate(() => window.__skyCourierDebug.snapshot());
   await page.keyboard.up("KeyD");
   await page.waitForTimeout(80);
@@ -51,42 +63,47 @@ async (page) => {
   await page.waitForTimeout(300);
   const releasedRoll = await page.evaluate(() => window.__skyCourierDebug.snapshot());
   await page.keyboard.down("KeyS");
-  await page.keyboard.down("ShiftLeft");
-  await page.waitForTimeout(700);
-  await page.keyboard.up("ShiftLeft");
+  await page.waitForTimeout(650);
   await page.keyboard.up("KeyS");
   const moving = await page.evaluate(() => window.__skyCourierDebug.snapshot());
 
-  const firstRollDelta = Math.abs(rollFirst.rollDegrees - before.rollDegrees);
-  const continuedRollDelta = Math.abs(rollSecond.rollDegrees - rollFirst.rollDegrees);
+  const firstRollDelta = angleDelta(rollFirst.rollDegrees, resetBeforeRoll.rollDegrees);
+  const continuedRollDelta = angleDelta(rollSecond.rollDegrees, rollFirst.rollDegrees);
   if (firstRollDelta < 16) {
-    throw new Error(`expected D input to roll the aircraft: ${JSON.stringify({ before, rollFirst, firstRollDelta })}`);
+    throw new Error(`expected D input to roll the aircraft: ${JSON.stringify({ resetBeforeRoll, rollFirst, firstRollDelta })}`);
   }
   if (continuedRollDelta < 16) {
     throw new Error(`expected held D input to keep rolling: ${JSON.stringify({ rollFirst, rollSecond, continuedRollDelta })}`);
   }
-  const rollOnlyHeadingDelta = headingDelta(rollSecond.headingDegrees, before.headingDegrees);
+  const rollOnlyHeadingDelta = angleDelta(rollSecond.headingDegrees, resetBeforeRoll.headingDegrees);
   if (rollOnlyHeadingDelta > 2) {
-    throw new Error(`expected expert roll-only input not to auto-turn: ${JSON.stringify({ before, rollSecond, rollOnlyHeadingDelta })}`);
+    throw new Error(`expected expert roll-only input not to auto-turn: ${JSON.stringify({ resetBeforeRoll, rollSecond, rollOnlyHeadingDelta })}`);
   }
-  if (Math.abs(releasedRoll.rollDegrees - releaseStart.rollDegrees) > 4) {
+  const heldRollDelta = angleDelta(releasedRoll.rollDegrees, releaseStart.rollDegrees);
+  if (heldRollDelta > 4) {
     throw new Error(`expected released roll input to preserve current roll angle: ${JSON.stringify({ releaseStart, releasedRoll })}`);
   }
   if (moving.speed <= before.speed) {
     throw new Error(`expected aircraft speed to increase, got before=${before.speed}, after=${moving.speed}`);
   }
-  const pullTurnHeadingDelta = headingDelta(moving.headingDegrees, releasedRoll.headingDegrees);
-  if (moving.pitchDegrees < 20 || moving.altitude <= releasedRoll.altitude + 20 || Math.abs(moving.rollDegrees) < 30 || pullTurnHeadingDelta < 8) {
-    throw new Error(`expected S/back-stick bank-and-pull control response: ${JSON.stringify({ before, releasedRoll, moving, pullTurnHeadingDelta })}`);
+  const pullTurnHeadingDelta = angleDelta(moving.headingDegrees, releasedRoll.headingDegrees);
+  const pullPitchDelta = angleDelta(moving.pitchDegrees, releasedRoll.pitchDegrees);
+  if (Math.abs(releasedRoll.rollDegrees) < 62 || Math.abs(releasedRoll.rollDegrees) > 110) {
+    throw new Error(`expected test setup to release near a sideways bank: ${JSON.stringify({ releasedRoll })}`);
+  }
+  if (Math.abs(moving.rollDegrees) < 48 || pullTurnHeadingDelta < 18 || pullPitchDelta > pullTurnHeadingDelta * 0.85) {
+    throw new Error(`expected S/back-stick to pitch around the local wing axis at bank: ${JSON.stringify({ resetBeforeRoll, releasedRoll, moving, pullTurnHeadingDelta, pullPitchDelta })}`);
   }
 
-  const headingAfterPull = moving.headingDegrees;
+  await page.evaluate(() => window.__skyCourierDebug.reset());
+  await page.waitForTimeout(200);
+  const beforeRudder = await page.evaluate(() => window.__skyCourierDebug.snapshot());
   await page.keyboard.down("KeyQ");
   await page.waitForTimeout(500);
   await page.keyboard.up("KeyQ");
   const rudder = await page.evaluate(() => window.__skyCourierDebug.snapshot());
-  if (headingDelta(rudder.headingDegrees, headingAfterPull) < 2) {
-    throw new Error(`expected Q/E rudder yaw to adjust heading: ${JSON.stringify({ moving, rudder })}`);
+  if (angleDelta(rudder.headingDegrees, beforeRudder.headingDegrees) < 2) {
+    throw new Error(`expected Q/E rudder yaw to adjust heading when upright: ${JSON.stringify({ beforeRudder, rudder })}`);
   }
 
   const completed = await page.evaluate(() => window.__skyCourierDebug.completeCourse());
@@ -95,5 +112,5 @@ async (page) => {
   }
 
   await page.screenshot({ path: "output/playwright/sky-courier-complete.png", fullPage: false });
-  return { canvasStats, before, rollFirst, rollSecond, releaseStart, releasedRoll, moving, pullTurnHeadingDelta, rudder, completed };
+  return { canvasStats, before, uprightPull, resetBeforeRoll, rollFirst, rollSecond, releaseStart, releasedRoll, moving, pullTurnHeadingDelta, pullPitchDelta, beforeRudder, rudder, completed };
 }

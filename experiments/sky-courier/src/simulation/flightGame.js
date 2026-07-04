@@ -80,7 +80,7 @@ class SkyCourierGame {
       continuousRoll: true,
       rollRate: 2.75,
       bankTurnRate: 0,
-      pullTurnRate: 1.08,
+      pullTurnRate: 0,
       yawRate: 0.52,
       maxBankRoll: 1.34,
       bankTurnRollReference: 0.96,
