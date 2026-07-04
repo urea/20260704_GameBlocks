@@ -41,6 +41,7 @@ $requiredPaths = @(
     "experiments/contraption-lab/src/ui/hud.js",
     "tools/verify-contraption-lab.playwright.js",
     "tools/verify-contraption-lab-mobile.playwright.js",
+    "tools/verify-contraption-lab-public.playwright.js",
     "tools/verify-block-relay.playwright.js",
     "tools/verify-block-relay-mobile.playwright.js",
     "third_party/GameBlocks/LICENSE",
