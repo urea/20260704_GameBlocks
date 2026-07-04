@@ -35,11 +35,13 @@ powershell -ExecutionPolicy Bypass -File .\tools\ValidateProject.ps1
 
 ## Playable Experiments
 
+- `experiments/sky-courier/` - 3D flight course using GameBlocks aircraft motion, aircraft visual, HUD, camera, terrain, and crash logic.
 - `experiments/block-relay/` - route-building 3D puzzle.
 - `experiments/contraption-lab/` - 3D contraption physics puzzle with fans, ramps, walls, bumpers, and four stages.
 
 When published with GitHub Pages:
 
 - `https://urea.github.io/20260704_GameBlocks/`
+- `https://urea.github.io/20260704_GameBlocks/experiments/sky-courier/`
 - `https://urea.github.io/20260704_GameBlocks/experiments/contraption-lab/`
 - `https://urea.github.io/20260704_GameBlocks/experiments/block-relay/`

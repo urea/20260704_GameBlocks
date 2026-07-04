@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sky Courier - GameBlocks Flight</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="scene-root" aria-label="Sky Courier 3D scene"></div>
+      <div id="hud"></div>
+      <div class="mission-panel" aria-live="polite">
+        <span class="mission-panel__name">Sky Courier</span>
+        <strong id="gate-readout">Gate 1/9</strong>
+        <span id="target-readout">000 m</span>
+      </div>
+      <button id="reset-button" class="reset-button" type="button" aria-label="Reset flight">Reset</button>
+      <div id="touch-controls" class="touch-controls" aria-label="Flight controls">
+        <div class="touch-controls__pad">
+          <button type="button" data-input="up" aria-label="Pitch up">↑</button>
+          <button type="button" data-input="left" aria-label="Turn left">←</button>
+          <button type="button" data-input="right" aria-label="Turn right">→</button>
+          <button type="button" data-input="down" aria-label="Pitch down">↓</button>
+        </div>
+        <button type="button" class="touch-controls__boost" data-input="boost" aria-label="Boost">Boost</button>
+      </div>
+    </div>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
