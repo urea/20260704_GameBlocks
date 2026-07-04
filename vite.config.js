@@ -30,6 +30,7 @@ export default defineConfig({
         blockRelay: path.resolve(projectRoot, "experiments/block-relay/index.html"),
         contraptionLab: path.resolve(projectRoot, "experiments/contraption-lab/index.html"),
         skyCourier: path.resolve(projectRoot, "experiments/sky-courier/index.html"),
+        fantasyAdvance: path.resolve(projectRoot, "experiments/fantasy-advance/index.html"),
       },
     },
   },
