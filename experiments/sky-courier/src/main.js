@@ -11,6 +11,8 @@ const input = {
   right: 0,
   up: 0,
   down: 0,
+  yawLeft: 0,
+  yawRight: 0,
   throttle: 0,
   boost: false,
 };
@@ -25,6 +27,8 @@ const keyBindings = new Map([
   ["KeyW", "up"],
   ["ArrowDown", "down"],
   ["KeyS", "down"],
+  ["KeyQ", "yawLeft"],
+  ["KeyE", "yawRight"],
   ["Equal", "throttleUp"],
   ["NumpadAdd", "throttleUp"],
   ["Minus", "throttleDown"],
@@ -39,6 +43,8 @@ function syncKeyboardInput() {
   input.right = pressed.has("right") ? 1 : 0;
   input.up = pressed.has("up") ? 1 : 0;
   input.down = pressed.has("down") ? 1 : 0;
+  input.yawLeft = pressed.has("yawLeft") ? 1 : 0;
+  input.yawRight = pressed.has("yawRight") ? 1 : 0;
   input.throttle = (pressed.has("throttleUp") ? 1 : 0) - (pressed.has("throttleDown") ? 1 : 0);
   input.boost = pressed.has("boost");
 }
@@ -72,6 +78,8 @@ function bindTouchControls() {
     input.right = pressed.has("right") || activeTouch.has("right") ? 1 : 0;
     input.up = pressed.has("up") || activeTouch.has("up") ? 1 : 0;
     input.down = pressed.has("down") || activeTouch.has("down") ? 1 : 0;
+    input.yawLeft = pressed.has("yawLeft") ? 1 : 0;
+    input.yawRight = pressed.has("yawRight") ? 1 : 0;
     input.boost = pressed.has("boost") || activeTouch.has("boost");
   }
   for (const button of buttons) {

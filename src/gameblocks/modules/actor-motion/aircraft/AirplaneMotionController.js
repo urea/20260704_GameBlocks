@@ -11,9 +11,14 @@ export class AirplaneMotionController {
     speedLag = 0.56,
     boostSpeedLag = 0.26,
     pitchRate = 1.18,
+    minPitch = -1.05,
+    maxPitch = 1.18,
+    pitchReturnLag = 0,
     maxBankRoll = 1.1868, // 68 deg
     bankRollLag = 0.21,
     bankTurnRate = 0.42,
+    pullTurnRate = 0,
+    yawRate = 0.48,
     bankTurnRollReference = 0.9774, // 56 deg
     boostDuration = 1.7,
     boostMultiplier = 1.28,
@@ -26,9 +31,14 @@ export class AirplaneMotionController {
       speedLag,
       boostSpeedLag,
       pitchRate,
+      minPitch,
+      maxPitch,
+      pitchReturnLag,
       maxBankRoll,
       bankRollLag,
       bankTurnRate,
+      pullTurnRate,
+      yawRate,
       bankTurnRollReference,
       boostDuration,
       boostMultiplier,
@@ -75,6 +85,7 @@ export class AirplaneMotionController {
 
   // left/right: 0..1 steers toward the local left/right directions.
   // up/down: 0..1 steers toward the local up/down directions.
+  // yawLeft/yawRight: 0..1 applies direct rudder-like yaw.
   // throttle: -1..1 adjusts cruise throttle.
   // boost: true triggers boost.
   planMovement({
@@ -82,6 +93,8 @@ export class AirplaneMotionController {
     right = 0,
     up = 0,
     down = 0,
+    yawLeft = 0,
+    yawRight = 0,
     throttle = 0,
     boost = false,
     deltaSeconds = 1 / 60,
@@ -90,6 +103,7 @@ export class AirplaneMotionController {
     const startPosition = this.position.clone();
     const leftRight = this.basis.controlSignal('counterClockWise', left) + this.basis.controlSignal('clockWise', right);
     const upDown = this.basis.controlSignal('counterClockWise', up) + this.basis.controlSignal('clockWise', down);
+    const yawInput = this.basis.controlSignal('counterClockWise', yawLeft) + this.basis.controlSignal('clockWise', yawRight);
 
     if (throttle > 0) {
       this.throttle = Math.min(1, this.throttle + this.cfg.throttleRate * deltaSeconds);
@@ -101,7 +115,7 @@ export class AirplaneMotionController {
 
     this._stepBoost(boostHeld, deltaSeconds);
     const nextSpeed = this.predictSpeed(deltaSeconds);
-    const nextAttitude = this.predictAttitude(leftRight, upDown, nextSpeed, deltaSeconds);
+    const nextAttitude = this.predictAttitude(leftRight, upDown, yawInput, nextSpeed, deltaSeconds);
 
     const nextPosition = this.predictPosition(
       this.position,
@@ -178,21 +192,30 @@ export class AirplaneMotionController {
     );
   }
 
-  predictAttitude(leftRight, upDown, speed, deltaSeconds) {
+  predictAttitude(leftRight, upDown, yawInput, speed, deltaSeconds) {
     const controlEffectiveness = speed > this.cfg.minSpeed ? 1 : speed / this.cfg.minSpeed;
     const localPitch = upDown * this.cfg.pitchRate * deltaSeconds * controlEffectiveness;
     const maxBankRoll = Math.abs(this.cfg.maxBankRoll);
     // the turn direction and roll-bank direction have opposite signs.
     const targetRoll = -leftRight * maxBankRoll;
     const currentRoll = clamp(this.roll, -maxBankRoll, maxBankRoll);
-    const pitch = this.pitch + localPitch;
+    let pitch = clamp(this.pitch + localPitch, this.cfg.minPitch, this.cfg.maxPitch);
+    if (Math.abs(upDown) <= 1e-6 && this.cfg.pitchReturnLag > 0) {
+      pitch = smoothToward(pitch, 0, this.cfg.pitchReturnLag, deltaSeconds);
+    }
     const roll = smoothToward(currentRoll, targetRoll, this.cfg.bankRollLag, deltaSeconds);
 
     const bankTurnReference = Math.max(1e-6, Math.abs(this.cfg.bankTurnRollReference));
     // Convert the roll-bank direction back to turn direction.
     const bankTurnAxis = clamp(-roll / bankTurnReference, -1, 1);
-    const bankTurnYaw = bankTurnAxis * this.cfg.bankTurnRate * deltaSeconds * controlEffectiveness;
-    const yaw = this.yaw + bankTurnYaw;
+    const passiveBankTurnYaw = bankTurnAxis * this.cfg.bankTurnRate * deltaSeconds * controlEffectiveness;
+    const pullTurnYaw = bankTurnAxis
+      * Math.max(0, upDown)
+      * this.cfg.pullTurnRate
+      * deltaSeconds
+      * controlEffectiveness;
+    const rudderYaw = yawInput * this.cfg.yawRate * deltaSeconds * controlEffectiveness;
+    const yaw = this.yaw + passiveBankTurnYaw + pullTurnYaw + rudderYaw;
 
     return { pitch, roll, yaw };
   }

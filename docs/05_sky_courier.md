@@ -13,6 +13,14 @@ The earlier prototypes proved that GameBlocks modules can be copied into a Vite 
 3. Use boost to shorten the course time.
 4. Finish the final gate and keep flying in free flight.
 
+## Controls
+
+- `A / D` or left/right arrows roll the aircraft.
+- `W / S` or up/down arrows pitch the nose.
+- Bank and pull up to make the tightest turns.
+- `Q / E` apply light rudder yaw for fine correction.
+- `Shift` or `Space` triggers boost.
+
 ## GameBlocks Modules In The Critical Path
 
 - `AirplaneMotionController` owns throttle, speed, pitch, roll, yaw, banked turning, and boost.
@@ -27,7 +35,7 @@ The earlier prototypes proved that GameBlocks modules can be copied into a Vite 
 
 ## Local Code
 
-Local code is limited to the ring-course objective, keyboard and touch input, path/ring visuals, mission panel, and browser verification hooks.
+Local code is limited to the ring-course objective, keyboard and touch input, path/ring visuals, mission panel, and browser verification hooks. The copied `AirplaneMotionController` is locally extended for the Sky Courier arcade-flight profile: roll input banks the aircraft, pull-up while banked increases turn rate, and Q/E apply rudder-style yaw.
 
 ## Verification
 

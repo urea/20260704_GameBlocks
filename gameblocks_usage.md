@@ -24,7 +24,7 @@ This file records which GameBlocks modules are selected for each prototype.
 | `modules/math/WorldBasis.js` | Shared gameplay-to-world coordinate basis. | Reused as-is | Imported by `BoardEnvironment` and used by the renderer for cell picking. |
 | `modules/world/environment/BoardEnvironment.js` | Creates the 3D grid board, board mesh, grid, and basic lighting. | Reused as-is | Used by both `block-relay` and `contraption-lab`. |
 | `modules/behavior/GridPathPlanner.js` | Finds active relay paths and optional plan paths on the grid. | Reused as-is | Used by `experiments/block-relay/src/simulation/relayGame.js`. |
-| `modules/actor-motion/aircraft/AirplaneMotionController.js` | Aircraft speed, throttle, pitch, roll, yaw, and boost simulation. | Reused as-is | Used as the authoritative movement model in `sky-courier`. |
+| `modules/actor-motion/aircraft/AirplaneMotionController.js` | Aircraft speed, throttle, pitch, roll, yaw, and boost simulation. | Adapted locally | Used as the authoritative movement model in `sky-courier`; the copied module adds pull-turn and rudder-yaw inputs for an arcade flight profile. |
 | `modules/actor-motion/aircraft/AirplaneModelController.js` | Applies aircraft pose and engine state to a Three.js model. | Reused as-is | Drives the airplane visual and jet flames in `sky-courier`. |
 | `modules/world/object/factory/AirplaneVisualFactory.js` | Creates a procedural aircraft model with jet flame anchors. | Reused as-is | Used for the playable plane in `sky-courier`. |
 | `modules/world/visual-effects/JetFlame.js` | Shader-based jet flame visual. | Reused as-is | Instantiated through `AirplaneVisualFactory`. |
@@ -52,7 +52,7 @@ This file records which GameBlocks modules are selected for each prototype.
 
 `sky-courier` intentionally keeps local code thin around GameBlocks modules:
 
-- Flight dynamics come from `AirplaneMotionController`.
+- Flight dynamics come from a local `AirplaneMotionController` copy adapted for roll + pitch pull-turn controls.
 - The aircraft mesh and jet flames come from `AirplaneVisualFactory` and `JetFlameLocalVisual`.
 - Terrain and prop placement come from `ArchipelagoTerrainSampler` and `NaturalEnvironment`.
 - Ground and water failure comes from `FlightPlay`.

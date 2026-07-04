@@ -38,17 +38,34 @@ async (page) => {
   }
 
   const before = await page.evaluate(() => window.__skyCourierDebug.snapshot());
-  await page.keyboard.down("KeyW");
   await page.keyboard.down("KeyD");
+  await page.waitForTimeout(450);
+  const rollOnly = await page.evaluate(() => window.__skyCourierDebug.snapshot());
+  await page.keyboard.down("KeyW");
   await page.keyboard.down("ShiftLeft");
   await page.waitForTimeout(700);
   await page.keyboard.up("ShiftLeft");
-  await page.keyboard.up("KeyD");
   await page.keyboard.up("KeyW");
+  await page.keyboard.up("KeyD");
   const moving = await page.evaluate(() => window.__skyCourierDebug.snapshot());
 
+  if (Math.abs(rollOnly.rollDegrees) < 16) {
+    throw new Error(`expected roll input to bank the aircraft: ${JSON.stringify({ before, rollOnly })}`);
+  }
   if (moving.speed <= before.speed) {
     throw new Error(`expected aircraft speed to increase, got before=${before.speed}, after=${moving.speed}`);
+  }
+  if (moving.pitchDegrees < 20 || Math.abs(moving.rollDegrees) < 30) {
+    throw new Error(`expected bank-and-pull control response: ${JSON.stringify({ before, moving })}`);
+  }
+
+  const headingAfterPull = moving.headingDegrees;
+  await page.keyboard.down("KeyQ");
+  await page.waitForTimeout(500);
+  await page.keyboard.up("KeyQ");
+  const rudder = await page.evaluate(() => window.__skyCourierDebug.snapshot());
+  if (Math.abs(rudder.headingDegrees - headingAfterPull) < 2) {
+    throw new Error(`expected Q/E rudder yaw to adjust heading: ${JSON.stringify({ moving, rudder })}`);
   }
 
   const completed = await page.evaluate(() => window.__skyCourierDebug.completeCourse());
@@ -57,5 +74,5 @@ async (page) => {
   }
 
   await page.screenshot({ path: "output/playwright/sky-courier-complete.png", fullPage: false });
-  return { canvasStats, before, moving, completed };
+  return { canvasStats, before, rollOnly, moving, rudder, completed };
 }
