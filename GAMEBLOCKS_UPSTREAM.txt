@@ -1,0 +1,5 @@
+source: https://github.com/xt4d/GameBlocks
+commit: ba678d6b82890d151cc839c090fda8ef883c0184
+retrieved_at: 2026-07-04 Asia/Tokyo
+local_project_skill_copy: C:\Archive\20260704_GameBlocks\gameblocks
+codex_user_skill_copy: C:\Users\urear\.codex\skills\gameblocks

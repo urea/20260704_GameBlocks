@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Relay Blocks</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23181a17'/%3E%3Cpath d='M12 44h40v8H12z' fill='%233bd6ad'/%3E%3Cpath d='M12 28h16v16H12z' fill='%23f2a23a'/%3E%3Cpath d='M36 12h16v16H36z' fill='%23be6cff'/%3E%3Cpath d='M28 36l8-8' stroke='%23f4f0e8' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <main id="app">
+      <section id="scene-root" aria-label="Relay Blocks game scene"></section>
+
+      <div class="hud" aria-live="polite">
+        <div class="hud-top">
+          <div class="identity">
+            <span class="identity-mark" aria-hidden="true"></span>
+            <span>
+              <strong>Relay Blocks</strong>
+              <small id="level-name">Level</small>
+            </span>
+          </div>
+          <div id="status-chip" class="status-chip">Open route</div>
+        </div>
+
+        <div class="hud-metrics">
+          <div>
+            <small>Blocks</small>
+            <strong id="blocks-value">0/0</strong>
+          </div>
+          <div>
+            <small>Route</small>
+            <strong id="route-value">--</strong>
+          </div>
+          <div>
+            <small>Level</small>
+            <strong id="level-value">1/1</strong>
+          </div>
+        </div>
+
+        <div class="hud-actions">
+          <button id="run-button" type="button" title="Run">
+            <span class="button-icon play-icon" aria-hidden="true"></span>
+            <span>Run</span>
+          </button>
+          <button id="plan-button" type="button" title="Plan">
+            <span class="button-icon plan-icon" aria-hidden="true"></span>
+            <span>Plan</span>
+          </button>
+          <button id="reset-button" type="button" title="Reset">
+            <span class="button-icon reset-icon" aria-hidden="true"></span>
+            <span>Reset</span>
+          </button>
+          <button id="next-button" type="button" title="Next">
+            <span class="button-icon next-icon" aria-hidden="true"></span>
+            <span>Next</span>
+          </button>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contraption Lab</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2317191b'/%3E%3Ccircle cx='19' cy='45' r='8' fill='%23f2b14b'/%3E%3Cpath d='M18 38h32l-12-22z' fill='%2367d9c0'/%3E%3Cpath d='M29 42l16-16' stroke='%23f6f0df' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <main id="app">
+      <section id="scene-root" aria-label="Contraption Lab game scene"></section>
+
+      <div class="hud" aria-live="polite">
+        <div class="hud-top">
+          <div class="identity">
+            <span class="identity-mark" aria-hidden="true"></span>
+            <span>
+              <strong>Contraption Lab</strong>
+              <small id="level-name">Level</small>
+            </span>
+          </div>
+          <div id="status-chip" class="status-chip">Build</div>
+        </div>
+
+        <div class="metrics">
+          <div>
+            <small>Parts</small>
+            <strong id="parts-value">0/0</strong>
+          </div>
+          <div>
+            <small>Time</small>
+            <strong id="time-value">0.0</strong>
+          </div>
+          <div>
+            <small>Stage</small>
+            <strong id="stage-value">1/1</strong>
+          </div>
+        </div>
+
+        <div class="toolbelt" role="toolbar" aria-label="Parts">
+          <button class="tool-button" id="tool-fan" type="button" title="Fan">
+            <i data-lucide="fan" aria-hidden="true"></i>
+            <span>Fan</span>
+            <small id="count-fan">0</small>
+          </button>
+          <button class="tool-button" id="tool-ramp" type="button" title="Ramp">
+            <i data-lucide="triangle-right" aria-hidden="true"></i>
+            <span>Ramp</span>
+            <small id="count-ramp">0</small>
+          </button>
+          <button class="tool-button" id="tool-wall" type="button" title="Wall">
+            <i data-lucide="brick-wall" aria-hidden="true"></i>
+            <span>Wall</span>
+            <small id="count-wall">0</small>
+          </button>
+          <button class="tool-button" id="tool-bumper" type="button" title="Bumper">
+            <i data-lucide="circle-dot" aria-hidden="true"></i>
+            <span>Bumper</span>
+            <small id="count-bumper">0</small>
+          </button>
+        </div>
+
+        <div class="actions" role="toolbar" aria-label="Actions">
+          <button id="rotate-button" type="button" title="Rotate">
+            <i data-lucide="rotate-cw" aria-hidden="true"></i>
+            <span>Rotate</span>
+          </button>
+          <button id="hint-button" type="button" title="Blueprint">
+            <i data-lucide="drafting-compass" aria-hidden="true"></i>
+            <span>Plan</span>
+          </button>
+          <button id="clear-button" type="button" title="Clear">
+            <i data-lucide="eraser" aria-hidden="true"></i>
+            <span>Clear</span>
+          </button>
+          <button id="run-button" type="button" title="Run">
+            <i data-lucide="play" aria-hidden="true"></i>
+            <span>Run</span>
+          </button>
+          <button id="reset-button" type="button" title="Reset">
+            <i data-lucide="refresh-cw" aria-hidden="true"></i>
+            <span>Reset</span>
+          </button>
+          <button id="next-button" type="button" title="Next">
+            <i data-lucide="skip-forward" aria-hidden="true"></i>
+            <span>Next</span>
+          </button>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

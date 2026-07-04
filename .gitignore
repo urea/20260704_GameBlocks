@@ -1,0 +1,28 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Dependency and build output placeholders
+node_modules/
+dist/
+build/
+out/
+bin/
+obj/
+output/
+
+# Local-only files
+.env
+.env.*
+!.env.example
+.devserver*.log
+.playwright-cli/
+
+# Upstream clone used only for refresh/reference
+.upstream/
